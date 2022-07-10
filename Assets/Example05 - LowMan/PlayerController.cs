@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -17,6 +18,8 @@ public class PlayerController : MonoBehaviour
     public int currentHP;
     public string botName;
     public Color botColor;
+    public bool isDead;
+    public bool inBattle;
 
     public GameObject fieldHP;
     public HealthBar healthBar;
@@ -38,6 +41,8 @@ public class PlayerController : MonoBehaviour
         fieldScore.GetComponent<Text>().text = Score.ToString();
         fieldName.GetComponent<Text>().text = botName.ToString();
         botBody.GetComponent<SkinnedMeshRenderer>().material.color = botColor;
+        isDead = false;
+        inBattle = false;
     }
 
     public void SetNewScoreAndDamage(int dmg, int scr)
@@ -65,10 +70,25 @@ public class PlayerController : MonoBehaviour
         if (target != null)
         {
             agent.SetDestination(target.transform.position);
+            PlayerController targetContr = target.GetComponent<PlayerController>();
+            //Debug.Log(botName + " target is " + targetContr.botName);
+            if (Vector3.Distance(transform.position, target.transform.position) < 2.05f)
+            {
+                //Debug.Log("Should battle?");
+                if (!inBattle && !targetContr.inBattle)
+                {
+                    inBattle = true;
+                    targetContr.inBattle = true;
+                    //StartCoroutine(Battle());
+                    level.StartCoroutine(level.Battle(this, targetContr));
+                }
+            }
         }
 
         if (agent.remainingDistance > agent.stoppingDistance)
         {
+            NavMeshPath path = new NavMeshPath();
+            //Debug.Log(botName + "  remainingDistance = " + agent.remainingDistance + " calcDist - " + agent.CalculatePath(target.transform.position, path));
             character.Move(agent.desiredVelocity, false, false);
         }
         else
@@ -84,22 +104,57 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        currentHP -= damage;
-        fieldHP.GetComponent<Text>().text = currentHP.ToString();
-        healthBar.SetHealth(currentHP);
-
-        if (currentHP <= 0)
+        if (currentHP > 0)
+        {
+            currentHP -= damage;
+            fieldHP.GetComponent<Text>().text = currentHP.ToString();
+            healthBar.SetHealth(currentHP);
+            if (currentHP <= 0) isDead = true;
+        } 
+        if (isDead)
         {
             animator.SetTrigger("DeathTrigger");
             PlayerController winBot = target.GetComponent<PlayerController>();
             winBot.SetNewScoreAndDamage(winBot.damage + 1, winBot.Score + 1);
+            inBattle = false;
+            winBot.inBattle = false;
             winBot.target = null;
             level.Bots.Remove(gameObject);
+            level.currentBotNumber--;
+            StartCoroutine(Dead());
         }
     }
 
-    public void DontMove()
+    IEnumerator Battle()
     {
-        character.Move(Vector3.zero, false, false);
+        PlayerController targetContr = target.GetComponent<PlayerController>();
+        do
+        {
+            yield return new WaitForSeconds(1);
+            if (!targetContr.isDead)
+            TakeDamage(targetContr.damage);
+            if (!isDead)
+            targetContr.TakeDamage(damage);
+        } while (!isDead && !targetContr.isDead);
+        inBattle = false;
+        targetContr.inBattle = false;
+        yield return new WaitForSeconds(1);
+        StartCoroutine(FindOtherTarget());
+    }
+    public IEnumerator Dead()
+    {
+        yield return new WaitForSeconds(3);
+        Destroy(gameObject);
+    }
+
+    IEnumerator FindOtherTarget()
+    {
+        yield return new WaitForSeconds(2);
+        level.StartCoroutine(level.FindTargets());
+    }
+
+    public void Crouch()
+    {
+        animator.SetTrigger("Crouch");
     }
 }
