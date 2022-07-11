@@ -20,7 +20,7 @@ public class MainMenuController : MonoBehaviour
         json.saves.botsNum = 4;
         json.SaveAll(json.saves);
     }
-
+     // уменьшение значения числа ботов для изначальной генерации
     public void LessBtnClick()
     {
         if(int.Parse(BotsNumber.GetComponent<Text>().text) > 2)
@@ -42,6 +42,7 @@ public class MainMenuController : MonoBehaviour
         }
     }
 
+    // увеличение значения числа ботов для изначальной генерации
     public void MoreBtnClick()
     {
         if (int.Parse(BotsNumber.GetComponent<Text>().text) < 8)
@@ -63,8 +64,15 @@ public class MainMenuController : MonoBehaviour
         }
     }
 
+    // запуск загрузчной сцены перед игровой сценой
     public void ClickPlay()
     {
         SceneManager.LoadScene("Load");
+    }
+
+    // выход из приложения
+    public void ExitGame()
+    {
+        Application.Quit();
     }
 }

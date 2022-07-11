@@ -9,6 +9,7 @@ public class HealthBar : MonoBehaviour
     public Gradient gradient;
     public Image fill;
 
+    // задание максимального значнеия XP
     public void SetMaxHealth(int health)
     {
         slider.maxValue = health;
@@ -17,6 +18,8 @@ public class HealthBar : MonoBehaviour
         gradient.Evaluate(1f);
     }
 
+    // изменение значения XP и задание цвета слайдера
+    // в соответствии текущего значения с градиентом
     public void SetHealth(int health)
     {
         slider.value = health;

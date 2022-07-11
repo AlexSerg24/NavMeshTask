@@ -10,7 +10,7 @@ public class Billboard : MonoBehaviour
         cam = FindObjectOfType<Camera>();
     }
 
-    // Update is called once per frame
+    // задание направления билборда бота по направлению к камере
     void LateUpdate()
     {
         transform.LookAt(transform.position + cam.transform.forward);

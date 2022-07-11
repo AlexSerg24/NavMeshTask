@@ -13,6 +13,7 @@ public class LoadLevelController : MonoBehaviour
         json.LoadField();
     }
 
+    // загрузка следующей сцены в соответствии с записанной в файле сценой
     public void LoadNextScene()
     {
         if (json.saves.level == "MainMenu")

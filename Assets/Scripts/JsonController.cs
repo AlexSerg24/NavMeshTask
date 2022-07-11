@@ -17,6 +17,7 @@ public class JsonController : MonoBehaviour
         Debug.Log("level - " + saves.level + ", bots - " + saves.botsNum);
     }
 
+    // загрузка сохраненных значений из файла
     [ContextMenu("Load")]
     public void LoadField()
     {
@@ -60,13 +61,17 @@ public class JsonController : MonoBehaviour
         JsonUtility.FromJsonOverwrite(jsonData, saves);
     }
 
-
+    // сохранение значений в файл
     [ContextMenu("Save")]
     public void SaveAll(LevelSaves ls)
     {      
         File.WriteAllText(Application.persistentDataPath + "/JSON.json", JsonUtility.ToJson(ls));
     }
 
+    // класс для записи в файл с полями предыдущего уровня,
+    // для того, чтобы после сцены Load загружаласть нужная 
+    // сцена, а также полем с количеством ботов для первичной 
+    // генерации, которое задается в главном меню
     [System.Serializable]
     public class LevelSaves
     {
